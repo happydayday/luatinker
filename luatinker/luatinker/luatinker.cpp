@@ -744,4 +744,42 @@ luatinker::table::~table( )
     m_obj->dec_ref( );
 }
 
+int luatinker::table::len(lua_State* L)
+{
+	int len = 0;
+
+	lua_pushnil(L);
+	while (lua_next(L, m_obj->m_index) != 0)
+	{
+		++len;
+		lua_pop(L, 1);
+	}
+
+	return len;
+}
+
+bool luatinker::table::has(lua_State * L, const char * key) const
+{
+	bool isExist = false;
+
+	lua_pushnil(L);
+	while (lua_next(L, m_obj->m_index) != 0)
+	{
+		int keyType = lua_type(L, -2);
+		if (keyType != LUA_TSTRING)
+		{
+			lua_pop(L, 1);
+			continue;
+		}
+
+		if (!isExist && std::strcmp(key, lua_tostring(L, -2)) == 0)
+		{
+			isExist = true;
+		}
+
+		lua_pop(L, 1);
+	}
+
+	return isExist;
+}
 /*---------------------------------------------------------------------------*/

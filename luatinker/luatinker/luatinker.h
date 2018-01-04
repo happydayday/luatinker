@@ -1257,6 +1257,12 @@ namespace luatinker
                 return m_obj->get<Key, Value>( name );
             }
 
+			// 获取表长度
+			int len(lua_State* L);
+
+			// 判断key是否存在
+			bool has(lua_State* L, const char * key) const;
+
         table_obj*      m_obj;
     };
 
