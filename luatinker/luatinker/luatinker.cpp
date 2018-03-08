@@ -744,42 +744,52 @@ luatinker::table::~table( )
     m_obj->dec_ref( );
 }
 
-int luatinker::table::len(lua_State* L)
+int luatinker::table::len( lua_State* L )
 {
-	int len = 0;
+    int len = 0;
 
-	lua_pushnil(L);
-	while (lua_next(L, m_obj->m_index) != 0)
-	{
-		++len;
-		lua_pop(L, 1);
-	}
+    if ( !m_obj->validate() )
+    {
+        return len;
+    }
 
-	return len;
+    lua_pushnil( L );
+    while( lua_next(L, m_obj->m_index) != 0 )
+    {
+        ++len;
+        lua_pop(L, 1);
+    }
+
+    return len;
 }
 
-bool luatinker::table::has(lua_State * L, const char * key) const
+bool luatinker::table::has( lua_State * L, const char * key ) const
 {
-	bool isExist = false;
+    bool found = false;
 
-	lua_pushnil(L);
-	while (lua_next(L, m_obj->m_index) != 0)
-	{
-		int keyType = lua_type(L, -2);
-		if (keyType != LUA_TSTRING)
-		{
-			lua_pop(L, 1);
-			continue;
-		}
+    if ( !m_obj->validate() )
+    {
+        return found;
+    }
 
-		if (!isExist && std::strcmp(key, lua_tostring(L, -2)) == 0)
-		{
-			isExist = true;
-		}
+    lua_pushnil( L );
+    while( lua_next(L, m_obj->m_index) != 0 )
+    {
+        int keyType = lua_type(L, -2);
 
-		lua_pop(L, 1);
-	}
+        if ( keyType == LUA_TSTRING )
+        {
+            if ( !found
+                    && std::strcmp( key, lua_tostring(L, -2) ) == 0 )
+            {
+                found = true;
+            }
+        }
 
-	return isExist;
+        lua_pop(L, 1);
+    }
+
+    return found;
 }
+
 /*---------------------------------------------------------------------------*/
